@@ -23,7 +23,9 @@
 package com.mihirpaldhikar.di
 
 import com.mihirpaldhikar.controllers.AccountController
+import com.mihirpaldhikar.controllers.PasskeyController
 import com.mihirpaldhikar.database.mongodb.repository.AccountRepository
+import com.yubico.webauthn.RelyingParty
 import org.koin.dsl.module
 
 object ControllerModule {
@@ -31,6 +33,13 @@ object ControllerModule {
         single<AccountController> {
             AccountController(
                 accountRepository = get<AccountRepository>()
+            )
+        }
+
+        single<PasskeyController> {
+            PasskeyController(
+                accountRepository = get<AccountRepository>(),
+                rp = get<RelyingParty>()
             )
         }
     }

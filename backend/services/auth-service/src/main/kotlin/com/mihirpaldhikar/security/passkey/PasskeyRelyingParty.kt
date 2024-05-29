@@ -20,25 +20,36 @@
  * SOFTWARE.
  */
 
-package com.mihirpaldhikar.di
+package com.mihirpaldhikar.security.passkey
 
-import com.mihirpaldhikar.Environment
 import com.mihirpaldhikar.database.mongodb.repository.AccountRepository
-import com.mihirpaldhikar.security.passkey.PasskeyRelyingParty
 import com.yubico.webauthn.RelyingParty
-import org.koin.dsl.module
+import com.yubico.webauthn.data.RelyingPartyIdentity
 
-object CoreModule {
-    val init = module {
-        single<Environment> {
-            Environment()
-        }
+class PasskeyRelyingParty(
+    private val developmentMode: Boolean,
+    private val accountRepository: AccountRepository,
+) {
+    fun getRelyingParty(): RelyingParty {
+        val rpIdentity: RelyingPartyIdentity = RelyingPartyIdentity.builder()
+            .id(
+                if (developmentMode) {
+                    "localhost"
+                } else "mihirpaldhikar.com"
+            )
+            .name("Passkey Auth Demo")
+            .build()
 
-        single<RelyingParty> {
-            PasskeyRelyingParty(
-                accountRepository = get<AccountRepository>(),
-                developmentMode = get<Environment>().developmentMode
-            ).getRelyingParty()
-        }
+        val rp: RelyingParty = RelyingParty.builder()
+            .identity(rpIdentity)
+            .credentialRepository(
+                PasskeyCredentialRepository(
+                    accountRepository = accountRepository
+                )
+            )
+            .allowOriginPort(true)
+            .allowOriginSubdomain(true)
+            .build()
+        return rp;
     }
 }

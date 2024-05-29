@@ -20,25 +20,17 @@
  * SOFTWARE.
  */
 
-package com.mihirpaldhikar.di
+package com.mihirpaldhikar.utils
 
-import com.mihirpaldhikar.Environment
-import com.mihirpaldhikar.database.mongodb.repository.AccountRepository
-import com.mihirpaldhikar.security.passkey.PasskeyRelyingParty
-import com.yubico.webauthn.RelyingParty
-import org.koin.dsl.module
+import com.yubico.webauthn.data.ByteArray
+import org.bson.types.ObjectId
 
-object CoreModule {
-    val init = module {
-        single<Environment> {
-            Environment()
-        }
+object PasskeyUtils {
+    fun toByteArray(uuid: ObjectId): ByteArray {
+        return ByteArray(uuid.toByteArray())
+    }
 
-        single<RelyingParty> {
-            PasskeyRelyingParty(
-                accountRepository = get<AccountRepository>(),
-                developmentMode = get<Environment>().developmentMode
-            ).getRelyingParty()
-        }
+    fun toObjectId(byteArray: ByteArray): ObjectId {
+        return ObjectId(byteArray.bytes)
     }
 }
