@@ -109,7 +109,8 @@ class PasskeyController(
         )
         assertionCache.put(identifier, request)
         return Result.Success(
-            data = hashMapOf("passkeyChallenge" to request.toCredentialsGetJson())
+            data = request.toCredentialsGetJson(),
+            encodeStringAsJSON = true
         )
     }
 
