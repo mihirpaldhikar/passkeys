@@ -20,16 +20,8 @@
  * SOFTWARE.
  */
 
-package com.mihirpaldhikar.plugins
+package com.mihirpaldhikar
 
-import com.mihirpaldhikar.di.CoreModule
-import io.ktor.server.application.*
-import org.koin.ktor.plugin.Koin
-
-fun Application.configureDependencyInjection() {
-    install(Koin) {
-        modules(
-            CoreModule.init
-        )
-    }
+class Environment {
+    val developmentMode: Boolean = System.getenv("DEVELOPMENT_MODE").toBoolean()
 }

@@ -20,16 +20,15 @@
  * SOFTWARE.
  */
 
-package com.mihirpaldhikar.plugins
+package com.mihirpaldhikar.di
 
-import com.mihirpaldhikar.di.CoreModule
-import io.ktor.server.application.*
-import org.koin.ktor.plugin.Koin
+import com.mihirpaldhikar.Environment
+import org.koin.dsl.module
 
-fun Application.configureDependencyInjection() {
-    install(Koin) {
-        modules(
-            CoreModule.init
-        )
+object CoreModule {
+    val init = module {
+        single<Environment> {
+            Environment()
+        }
     }
 }
