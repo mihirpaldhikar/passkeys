@@ -20,18 +20,20 @@
  * SOFTWARE.
  */
 
-package com.mihirpaldhikar.plugins
+package com.mihirpaldhikar.di
 
-import com.mihirpaldhikar.di.CoreModule
-import com.mihirpaldhikar.di.DatabaseModule
-import io.ktor.server.application.*
-import org.koin.ktor.plugin.Koin
+import com.mihirpaldhikar.Environment
+import com.mihirpaldhikar.database.mongodb.MongoDBConnector
+import com.mongodb.kotlin.client.coroutine.MongoDatabase
+import org.koin.dsl.module
 
-fun Application.configureDependencyInjection() {
-    install(Koin) {
-        modules(
-            CoreModule.init,
-            DatabaseModule.init
-        )
+object DatabaseModule {
+    val init = module {
+        single<MongoDatabase> {
+            MongoDBConnector(
+                connectionURL = get<Environment>().mongoDBConnectionURL,
+                database = get<Environment>().mongoDBName
+            ).connectToDatabase()
+        }
     }
 }
