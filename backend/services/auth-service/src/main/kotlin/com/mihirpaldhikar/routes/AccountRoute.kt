@@ -24,18 +24,56 @@ package com.mihirpaldhikar.routes
 
 import com.mihirpaldhikar.commons.dto.NewAccount
 import com.mihirpaldhikar.controllers.AccountController
+import com.mihirpaldhikar.controllers.PasskeyController
 import com.mihirpaldhikar.utils.sendResponse
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
 
 fun Routing.accountRoute(
-    accountController: AccountController
+    accountController: AccountController,
+    passkeyController: PasskeyController
 ) {
     route("/accounts") {
         post("/new") {
             val newAccount = call.receive<NewAccount>()
             val result = accountController.createAccount(newAccount)
+            sendResponse(result)
+        }
+
+        post("/{identifier}/passkeys/register") {
+            val result = passkeyController.startPasskeyRegistration(
+                identifier = call.parameters["identifier"]!!
+            )
+            sendResponse(result)
+        }
+
+        post("/{identifier}/passkeys/validateRegistrationChallenge") {
+            val credentials = call.receive<String>()
+            val result =
+                passkeyController.validatePasskeyRegistration(
+                    identifier = call.parameters["identifier"]!!,
+                    credentials = credentials
+                )
+
+            sendResponse(result)
+        }
+
+        post("/{identifier}/passkeys/signin") {
+            val result = passkeyController.startPasskeyChallenge(
+                identifier = call.parameters["identifier"]!!
+            )
+
+            sendResponse(result)
+        }
+
+        post("/{identifier}/passkeys/validatePasskeyChallenge") {
+            val credentials = call.receive<String>()
+            val result = passkeyController.validatePasskeyChallenge(
+                identifier = call.parameters["identifier"]!!,
+                credentials = credentials
+            )
+
             sendResponse(result)
         }
     }

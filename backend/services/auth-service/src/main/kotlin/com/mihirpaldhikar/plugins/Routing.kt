@@ -23,6 +23,7 @@
 package com.mihirpaldhikar.plugins
 
 import com.mihirpaldhikar.controllers.AccountController
+import com.mihirpaldhikar.controllers.PasskeyController
 import com.mihirpaldhikar.routes.accountRoute
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
@@ -30,7 +31,11 @@ import org.koin.java.KoinJavaComponent
 
 fun Application.configureRouting() {
     val accountController by KoinJavaComponent.inject<AccountController>(AccountController::class.java)
+    val passkeyController by KoinJavaComponent.inject<PasskeyController>(PasskeyController::class.java)
     routing {
-        accountRoute(accountController = accountController)
+        accountRoute(
+            accountController = accountController,
+            passkeyController = passkeyController
+        )
     }
 }
