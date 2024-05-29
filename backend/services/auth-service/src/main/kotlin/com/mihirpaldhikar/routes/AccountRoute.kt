@@ -20,17 +20,23 @@
  * SOFTWARE.
  */
 
-package com.mihirpaldhikar.plugins
+package com.mihirpaldhikar.routes
 
+import com.mihirpaldhikar.commons.dto.NewAccount
 import com.mihirpaldhikar.controllers.AccountController
-import com.mihirpaldhikar.routes.accountRoute
+import com.mihirpaldhikar.utils.sendResponse
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.routing.*
-import org.koin.java.KoinJavaComponent
 
-fun Application.configureRouting() {
-    val accountController by KoinJavaComponent.inject<AccountController>(AccountController::class.java)
-    routing {
-        accountRoute(accountController = accountController)
+fun Routing.accountRoute(
+    accountController: AccountController
+) {
+    route("/accounts") {
+        post("/new") {
+            val newAccount = call.receive<NewAccount>()
+            val result = accountController.createAccount(newAccount)
+            sendResponse(result)
+        }
     }
 }

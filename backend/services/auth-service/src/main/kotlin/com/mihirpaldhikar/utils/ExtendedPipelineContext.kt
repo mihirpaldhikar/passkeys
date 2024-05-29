@@ -20,17 +20,23 @@
  * SOFTWARE.
  */
 
-package com.mihirpaldhikar.plugins
+package com.mihirpaldhikar.utils
 
-import com.mihirpaldhikar.controllers.AccountController
-import com.mihirpaldhikar.routes.accountRoute
+import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.routing.*
-import org.koin.java.KoinJavaComponent
+import io.ktor.server.response.*
+import io.ktor.util.pipeline.*
 
-fun Application.configureRouting() {
-    val accountController by KoinJavaComponent.inject<AccountController>(AccountController::class.java)
-    routing {
-        accountRoute(accountController = accountController)
-    }
+
+suspend fun PipelineContext<Unit, ApplicationCall>.sendResponse(
+    repositoryResult: Result
+) {
+    call.respond(
+        status = repositoryResult.httpStatusCode ?: HttpStatusCode.OK,
+        message = if (repositoryResult is Result.Success) {
+            repositoryResult.responseData
+        } else {
+            repositoryResult
+        }
+    )
 }
