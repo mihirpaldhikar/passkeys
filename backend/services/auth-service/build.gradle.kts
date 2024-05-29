@@ -25,6 +25,7 @@ val kotlinVersion: String by project
 val logbackVersion: String by project
 val koinVersion: String by project
 val mongoDBVersion: String by project
+val webauthnVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -71,6 +72,11 @@ dependencies {
     // MongoDB Dependencies
     implementation("org.mongodb:mongodb-driver-kotlin-coroutine:$mongoDBVersion")
     implementation("org.mongodb:bson-kotlinx:$mongoDBVersion")
+
+    // Yubico Webauthn
+    implementation("com.yubico:webauthn-server-core:$webauthnVersion")
+    implementation("com.yubico:webauthn-server-attestation:$webauthnVersion")
+    implementation("com.yubico:yubico-util:$webauthnVersion")
 
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
