@@ -88,7 +88,7 @@ class PasskeyCredentialRepository(
         if (account == null) {
             return Optional.empty()
         }
-        val fidoCredential = account.fidoCredential.firstOrNull { credentialId === ByteArray.fromBase64Url(it.keyId) }
+        val fidoCredential = account.fidoCredential.firstOrNull { credentialId == ByteArray.fromBase64Url(it.keyId) }
             ?: return Optional.empty()
 
         return Optional.of(
