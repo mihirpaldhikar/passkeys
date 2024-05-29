@@ -20,27 +20,13 @@
  * SOFTWARE.
  */
 
-package com.mihirpaldhikar
+package com.mihirpaldhikar.plugins
 
-import com.mihirpaldhikar.plugins.*
 import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
+import org.koin.ktor.plugin.Koin
 
-fun main() {
-    embeddedServer(
-        Netty,
-        port = 8080,
-        host = "0.0.0.0",
-        module = Application::module
-    )
-        .start(wait = true)
-}
-
-fun Application.module() {
-    configureDependencyInjection()
-    configureHTTP()
-    configureMonitoring()
-    configureSerialization()
-    configureRouting()
+fun Application.configureDependencyInjection() {
+    install(Koin) {
+        modules()
+    }
 }
