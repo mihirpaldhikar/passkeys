@@ -20,20 +20,15 @@
  * SOFTWARE.
  */
 
-package com.mihirpaldhikar.plugins
+package com.mihirpaldhikar.database.mongodb.datasource
 
-import com.mihirpaldhikar.di.CoreModule
-import com.mihirpaldhikar.di.DatabaseModule
-import com.mihirpaldhikar.di.RepositoryModule
-import io.ktor.server.application.*
-import org.koin.ktor.plugin.Koin
+import com.mihirpaldhikar.database.mongodb.entities.Account
+import com.mihirpaldhikar.security.dao.FidoCredential
 
-fun Application.configureDependencyInjection() {
-    install(Koin) {
-        modules(
-            CoreModule.init,
-            DatabaseModule.init,
-            RepositoryModule.init,
-        )
-    }
+interface AccountDatasource {
+    suspend fun createAccount(account: Account): Boolean
+
+    suspend fun getAccount(identifier: String): Account?
+
+    suspend fun addFidoCredentials(uuid: String, fidoCredential: FidoCredential): Boolean
 }

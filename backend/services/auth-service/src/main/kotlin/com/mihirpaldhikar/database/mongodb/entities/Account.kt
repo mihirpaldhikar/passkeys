@@ -20,20 +20,19 @@
  * SOFTWARE.
  */
 
-package com.mihirpaldhikar.plugins
+package com.mihirpaldhikar.database.mongodb.entities
 
-import com.mihirpaldhikar.di.CoreModule
-import com.mihirpaldhikar.di.DatabaseModule
-import com.mihirpaldhikar.di.RepositoryModule
-import io.ktor.server.application.*
-import org.koin.ktor.plugin.Koin
+import com.google.gson.annotations.Expose
+import com.mihirpaldhikar.security.dao.FidoCredential
+import com.mihirpaldhikar.security.dao.SaltedHash
+import org.bson.codecs.pojo.annotations.BsonId
+import org.bson.types.ObjectId
 
-fun Application.configureDependencyInjection() {
-    install(Koin) {
-        modules(
-            CoreModule.init,
-            DatabaseModule.init,
-            RepositoryModule.init,
-        )
-    }
-}
+data class Account(
+    @BsonId @Expose val uuid: ObjectId,
+    @Expose val username: String,
+    @Expose val displayName: String,
+    @Expose val email: String,
+    val password: SaltedHash,
+    val fidoCredential: MutableSet<FidoCredential>
+)

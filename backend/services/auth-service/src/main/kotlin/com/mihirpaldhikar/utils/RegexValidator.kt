@@ -20,20 +20,24 @@
  * SOFTWARE.
  */
 
-package com.mihirpaldhikar.plugins
+package com.mihirpaldhikar.utils
 
-import com.mihirpaldhikar.di.CoreModule
-import com.mihirpaldhikar.di.DatabaseModule
-import com.mihirpaldhikar.di.RepositoryModule
-import io.ktor.server.application.*
-import org.koin.ktor.plugin.Koin
+object RegexValidator {
 
-fun Application.configureDependencyInjection() {
-    install(Koin) {
-        modules(
-            CoreModule.init,
-            DatabaseModule.init,
-            RepositoryModule.init,
-        )
+    private val validUserNamePattern = Regex("^(?=.{3,20}\$)(?![_.])[a-zA-Z0-9._]+(?<![_.])\$")
+    private val validEmailPattern = Regex("^\\w+([.-]?\\w+)*@\\w+([.-]?\\w+)*(\\.\\w{2,3})+\$")
+    private val validPasswordPattern =
+        Regex("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@\$%^&*-]).{8,}\$")
+
+    fun isValidEmail(email: String): Boolean {
+        return validEmailPattern.containsMatchIn(email)
+    }
+
+    fun isValidUserName(username: String): Boolean {
+        return validUserNamePattern.containsMatchIn(username)
+    }
+
+    fun isValidPassword(password: String): Boolean {
+        return validPasswordPattern.containsMatchIn(password)
     }
 }

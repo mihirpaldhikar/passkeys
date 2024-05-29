@@ -20,20 +20,18 @@
  * SOFTWARE.
  */
 
-package com.mihirpaldhikar.plugins
+package com.mihirpaldhikar.di
 
-import com.mihirpaldhikar.di.CoreModule
-import com.mihirpaldhikar.di.DatabaseModule
-import com.mihirpaldhikar.di.RepositoryModule
-import io.ktor.server.application.*
-import org.koin.ktor.plugin.Koin
+import com.mihirpaldhikar.database.mongodb.repository.AccountRepository
+import com.mongodb.kotlin.client.coroutine.MongoDatabase
+import org.koin.dsl.module
 
-fun Application.configureDependencyInjection() {
-    install(Koin) {
-        modules(
-            CoreModule.init,
-            DatabaseModule.init,
-            RepositoryModule.init,
-        )
+object RepositoryModule {
+    val init = module {
+        single<AccountRepository> {
+            AccountRepository(
+                database = get<MongoDatabase>()
+            )
+        }
     }
 }
