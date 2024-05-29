@@ -31,12 +31,15 @@ import io.ktor.util.pipeline.*
 suspend fun PipelineContext<Unit, ApplicationCall>.sendResponse(
     repositoryResult: Result
 ) {
+    if (repositoryResult is Result.Success && repositoryResult.encodeStringAsJSON == true) {
+        call.response.headers.append("Content-Type", "application/json")
+    }
     call.respond(
         status = repositoryResult.httpStatusCode ?: HttpStatusCode.OK,
         message = if (repositoryResult is Result.Success) {
             repositoryResult.responseData
         } else {
             repositoryResult
-        }
+        },
     )
 }

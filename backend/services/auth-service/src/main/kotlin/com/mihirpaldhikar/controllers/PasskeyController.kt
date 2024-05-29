@@ -56,7 +56,8 @@ class PasskeyController(
         pkcCache.put(identifier, pkcOptions)
 
         return Result.Success(
-            data = hashMapOf("passkeyRegistrationCredentials" to pkcOptions.toCredentialsCreateJson())
+            data = pkcOptions.toCredentialsCreateJson(),
+            encodeStringAsJSON = true
         )
     }
 
