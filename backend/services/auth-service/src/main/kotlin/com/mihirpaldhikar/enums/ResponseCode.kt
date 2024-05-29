@@ -20,22 +20,19 @@
  * SOFTWARE.
  */
 
-package com.mihirpaldhikar.plugins
+package com.mihirpaldhikar.enums
 
-import com.mihirpaldhikar.di.ControllerModule
-import com.mihirpaldhikar.di.CoreModule
-import com.mihirpaldhikar.di.DatabaseModule
-import com.mihirpaldhikar.di.RepositoryModule
-import io.ktor.server.application.*
-import org.koin.ktor.plugin.Koin
-
-fun Application.configureDependencyInjection() {
-    install(Koin) {
-        modules(
-            CoreModule.init,
-            DatabaseModule.init,
-            RepositoryModule.init,
-            ControllerModule.init
-        )
-    }
+enum class ResponseCode {
+    OK,
+    ACCOUNT_CREATED,
+    ACCOUNT_EXISTS,
+    ACCOUNT_NOT_FOUND,
+    INVALID_PASSWORD,
+    PASSWORD_NOT_SECURE,
+    ACCOUNT_CREATION_ERROR,
+    INVALID_IDENTIFIER,
+    INVALID_OR_NULL_AUTHENTICATION,
+    REQUEST_NOT_COMPLETED,
+    INVALID_REQUEST,
+    SESSION_EXPIRED
 }

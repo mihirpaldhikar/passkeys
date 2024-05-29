@@ -20,22 +20,31 @@
  * SOFTWARE.
  */
 
-package com.mihirpaldhikar.plugins
+package com.mihirpaldhikar.utils
 
-import com.mihirpaldhikar.di.ControllerModule
-import com.mihirpaldhikar.di.CoreModule
-import com.mihirpaldhikar.di.DatabaseModule
-import com.mihirpaldhikar.di.RepositoryModule
-import io.ktor.server.application.*
-import org.koin.ktor.plugin.Koin
+import com.google.gson.annotations.Expose
+import com.mihirpaldhikar.enums.ResponseCode
+import io.ktor.http.*
 
-fun Application.configureDependencyInjection() {
-    install(Koin) {
-        modules(
-            CoreModule.init,
-            DatabaseModule.init,
-            RepositoryModule.init,
-            ControllerModule.init
-        )
-    }
+sealed class Result(
+    val httpStatusCode: HttpStatusCode? = HttpStatusCode.OK,
+    val responseCode: ResponseCode,
+    val responseData: Any
+) {
+    data class Error(
+        val statusCode: HttpStatusCode? = HttpStatusCode.BadRequest,
+        @Expose val errorCode: ResponseCode,
+        @Expose val message: String,
+    ) : Result(
+        httpStatusCode = statusCode, responseCode = errorCode, responseData = message
+    )
+
+    data class Success(
+        val statusCode: HttpStatusCode? = HttpStatusCode.OK,
+        val code: ResponseCode = ResponseCode.OK,
+        @Expose val data: Any
+    ) : Result(
+        httpStatusCode = statusCode, responseCode = code, responseData = data
+
+    )
 }

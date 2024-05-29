@@ -20,22 +20,13 @@
  * SOFTWARE.
  */
 
-package com.mihirpaldhikar.plugins
+package com.mihirpaldhikar.commons.dto
 
-import com.mihirpaldhikar.di.ControllerModule
-import com.mihirpaldhikar.di.CoreModule
-import com.mihirpaldhikar.di.DatabaseModule
-import com.mihirpaldhikar.di.RepositoryModule
-import io.ktor.server.application.*
-import org.koin.ktor.plugin.Koin
+import com.google.gson.annotations.Expose
 
-fun Application.configureDependencyInjection() {
-    install(Koin) {
-        modules(
-            CoreModule.init,
-            DatabaseModule.init,
-            RepositoryModule.init,
-            ControllerModule.init
-        )
-    }
-}
+data class NewAccount(
+    @Expose val username: String,
+    @Expose val displayName: String,
+    @Expose val email: String,
+    @Expose val password: String,
+)
