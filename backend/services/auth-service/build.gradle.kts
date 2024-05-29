@@ -78,6 +78,9 @@ dependencies {
     implementation("com.yubico:webauthn-server-attestation:$webauthnVersion")
     implementation("com.yubico:yubico-util:$webauthnVersion")
 
+    // Google Guava Cache
+    implementation("com.google.guava:guava:33.2.0-jre")
+
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
 }
