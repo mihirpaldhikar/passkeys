@@ -26,7 +26,7 @@ import {
 } from "@github/webauthn-json";
 import axios, { AxiosError, AxiosInstance } from "axios";
 import { StatusCode } from "@enums/index";
-import { Response } from "@dto/index";
+import { Account, Response } from "@dto/index";
 
 export default class AuthService {
   private ACCOUNT_SERVICE_URL = (
@@ -42,6 +42,40 @@ export default class AuthService {
       timeout: this.REQUEST_TIMEOUT,
       withCredentials: true,
     });
+  }
+
+  public async getAccount(): Promise<Response<Account | string>> {
+    try {
+      const response = await this.httpClient.get(
+        `${this.ACCOUNT_SERVICE_URL}/`,
+      );
+
+      if (response.status === 200) {
+        return {
+          statusCode: StatusCode.SUCCESS,
+          payload: await response.data,
+        };
+      }
+      throw new AxiosError("INTERNAL:Failed to fetch Account.");
+    } catch (error) {
+      let axiosError = (await error) as AxiosError;
+      if (axiosError.message.includes("INTERNAL:")) {
+        return {
+          statusCode: StatusCode.FAILURE,
+          message: axiosError.message.replaceAll("INTERNAL:", ""),
+        } as Response<string>;
+      }
+
+      let errorResponseString = JSON.stringify(
+        (await axiosError.response?.data) as string,
+      );
+      let errorResponse = JSON.parse(errorResponseString);
+
+      return {
+        statusCode: StatusCode.FAILURE,
+        message: errorResponse["message"],
+      } as Response<string>;
+    }
   }
 
   public async createAccount(
@@ -257,6 +291,37 @@ export default class AuthService {
       }
 
       throw new AxiosError("INTERNAL:Passkey Registration Failed.");
+    } catch (error) {
+      let axiosError = (await error) as AxiosError;
+      if (axiosError.message.includes("INTERNAL:")) {
+        return {
+          statusCode: StatusCode.FAILURE,
+          message: axiosError.message.replaceAll("INTERNAL:", ""),
+        } as Response<string>;
+      }
+
+      let errorResponseString = JSON.stringify(
+        (await axiosError.response?.data) as string,
+      );
+      let errorResponse = JSON.parse(errorResponseString);
+
+      return {
+        statusCode: StatusCode.FAILURE,
+        message: errorResponse["message"],
+      } as Response<string>;
+    }
+  }
+
+  public async signOut(): Promise<Response<string>> {
+    try {
+      const response = await this.httpClient.post(
+        `${this.ACCOUNT_SERVICE_URL}/signout`,
+      );
+      return {
+        statusCode:
+          response.status === 200 ? StatusCode.SUCCESS : StatusCode.FAILURE,
+        message: response.data["message"],
+      };
     } catch (error) {
       let axiosError = (await error) as AxiosError;
       if (axiosError.message.includes("INTERNAL:")) {

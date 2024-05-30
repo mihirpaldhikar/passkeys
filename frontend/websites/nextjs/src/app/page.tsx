@@ -19,12 +19,55 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+"use client";
+import { AuthService } from "@services/index";
+import { Fragment, useEffect, useState } from "react";
+import { Account } from "@dto/index";
+import { StatusCode } from "@enums/StatusCode";
+import { useRouter } from "next/navigation";
+
+const authService = new AuthService();
 
 export default function Home() {
+  const router = useRouter();
+
+  const [account, setAccount] = useState<Account | null>(null);
+
+  useEffect(() => {
+    authService.getAccount().then((response) => {
+      if (
+        response.statusCode === StatusCode.SUCCESS &&
+        "payload" in response &&
+        typeof response.payload === "object"
+      ) {
+        setAccount(response.payload);
+      }
+    });
+  }, []);
+
+  if (account === null) {
+    return <Fragment />;
+  }
+
   return (
-    <section className={"min-h-dvh flex"}>
-      <div className="m-auto">
-        <h1 className={"text-2xl font-bold"}>Passkeys Authentication</h1>
+    <section className={"flex min-h-dvh"}>
+      <div className="m-auto space-y-3">
+        <h4 className={"text-xl font-bold"}>Hello 👋🏻,</h4>
+        <h1 className={"text-6xl font-black"}>{account.displayName}</h1>
+        <h4 className={"font-medium"}>Email: {account.email}</h4>
+        <button
+          className={
+            "rounded-full bg-red-600 px-10 py-2 font-semibold text-white"
+          }
+          onClick={async () => {
+            const response = await authService.signOut();
+            if (response.statusCode === StatusCode.SUCCESS) {
+              router.refresh();
+            }
+          }}
+        >
+          Sign Out
+        </button>
       </div>
     </section>
   );

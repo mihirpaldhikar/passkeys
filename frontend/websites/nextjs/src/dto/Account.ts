@@ -20,5 +20,9 @@
  * SOFTWARE.
  */
 
-export type { Response } from "./Response";
-export type { default as Account } from "./Account";
+export default interface Account {
+  uuid: string;
+  username: string;
+  displayName: string;
+  email: string;
+}
