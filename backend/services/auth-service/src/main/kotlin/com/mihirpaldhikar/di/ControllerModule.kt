@@ -34,7 +34,8 @@ object ControllerModule {
         single<AccountController> {
             AccountController(
                 accountRepository = get<AccountRepository>(),
-                jsonWebToken = get<JsonWebToken>()
+                jsonWebToken = get<JsonWebToken>(),
+                passkeyController = get<PasskeyController>()
             )
         }
 

@@ -55,7 +55,7 @@ fun Routing.accountRoute(
         post("/authenticate") {
             val credentials = call.receive<AuthenticationCredentials>()
 
-            val result = accountController.passwordAuthentication(credentials)
+            val result = accountController.authenticate(credentials)
             setAccountCookies(result)
         }
 
@@ -73,14 +73,6 @@ fun Routing.accountRoute(
                     identifier = call.parameters["identifier"]!!,
                     credentials = credentials
                 )
-
-            sendResponse(result)
-        }
-
-        post("/{identifier}/passkeys/signin") {
-            val result = passkeyController.startPasskeyChallenge(
-                identifier = call.parameters["identifier"]!!
-            )
 
             sendResponse(result)
         }

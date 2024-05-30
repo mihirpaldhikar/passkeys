@@ -37,7 +37,8 @@ import org.bson.types.ObjectId
 
 class AccountController(
     private val accountRepository: AccountRepository,
-    private val jsonWebToken: JsonWebToken
+    private val jsonWebToken: JsonWebToken,
+    private val passkeyController: PasskeyController
 ) {
     suspend fun createAccount(newAccount: NewAccount): Result {
         if (accountRepository.getAccount(newAccount.username) != null || accountRepository.getAccount(newAccount.email) != null) {
@@ -102,7 +103,7 @@ class AccountController(
         )
     }
 
-    suspend fun passwordAuthentication(credentials: AuthenticationCredentials): Result {
+    suspend fun authenticate(credentials: AuthenticationCredentials): Result {
         val account = accountRepository.getAccount(credentials.identifier) ?: return Result.Error(
             statusCode = HttpStatusCode.NotFound,
             errorCode = ResponseCode.ACCOUNT_NOT_FOUND,
@@ -110,11 +111,8 @@ class AccountController(
         )
 
         if (account.fidoCredential.isNotEmpty()) {
-            return Result.Error(
-                statusCode = HttpStatusCode.NotAcceptable,
-                errorCode = ResponseCode.AUTHENTICATION_NOT_PERMITTED,
-                message = "Please authenticate with Passkeys."
-            )
+            val result = passkeyController.startPasskeyChallenge(credentials.identifier)
+            return result
         }
 
         if (credentials.password == null) {
