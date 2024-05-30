@@ -22,6 +22,7 @@
 
 package com.mihirpaldhikar.routes
 
+import com.mihirpaldhikar.commons.dto.AuthenticationCredentials
 import com.mihirpaldhikar.commons.dto.NewAccount
 import com.mihirpaldhikar.controllers.AccountController
 import com.mihirpaldhikar.controllers.PasskeyController
@@ -35,6 +36,14 @@ fun Routing.accountRoute(
     passkeyController: PasskeyController
 ) {
     route("/accounts") {
+
+        get("/authenticationStrategy") {
+            val credentials = call.receive<AuthenticationCredentials>()
+
+            val result = accountController.getAuthenticationStrategy(credentials.identifier)
+            sendResponse(result)
+        }
+
         post("/new") {
             val newAccount = call.receive<NewAccount>()
             val result = accountController.createAccount(newAccount)

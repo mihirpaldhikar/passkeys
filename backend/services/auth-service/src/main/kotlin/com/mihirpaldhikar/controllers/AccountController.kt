@@ -25,6 +25,7 @@ package com.mihirpaldhikar.controllers
 import com.mihirpaldhikar.commons.dto.NewAccount
 import com.mihirpaldhikar.database.mongodb.entities.Account
 import com.mihirpaldhikar.database.mongodb.repository.AccountRepository
+import com.mihirpaldhikar.enums.AuthenticationStrategy
 import com.mihirpaldhikar.enums.ResponseCode
 import com.mihirpaldhikar.security.core.Hash
 import com.mihirpaldhikar.utils.Result
@@ -68,4 +69,26 @@ class AccountController(
         )
     }
 
+
+    suspend fun getAuthenticationStrategy(identifier: String): Result {
+        val account = accountRepository.getAccount(identifier) ?: return Result.Error(
+            statusCode = HttpStatusCode.NotFound,
+            errorCode = ResponseCode.ACCOUNT_NOT_FOUND,
+            message = "Account not found."
+        )
+
+        if (account.fidoCredential.isEmpty()) {
+            return Result.Success(
+                statusCode = HttpStatusCode.OK,
+                code = ResponseCode.OK,
+                data = hashMapOf("authenticationStrategy" to AuthenticationStrategy.PASSWORD)
+            )
+        }
+
+        return Result.Success(
+            statusCode = HttpStatusCode.OK,
+            code = ResponseCode.OK,
+            data = hashMapOf("authenticationStrategy" to AuthenticationStrategy.PASSKEY)
+        )
+    }
 }
