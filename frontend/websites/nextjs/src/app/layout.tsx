@@ -20,34 +20,32 @@
  * SOFTWARE.
  */
 
-import type {Metadata} from "next";
-import {Montserrat} from "next/font/google";
+import type { Metadata } from "next";
+import { Montserrat } from "next/font/google";
 import "./globals.css";
-import {ReactNode} from "react";
+import { ReactNode } from "react";
 
-const montserrat = Montserrat({subsets: ["latin"], variable: "--font-sans"});
+const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-    title: "Passkeys",
-    description: "Integration of Passkeys with Next.js",
+  title: "Passkeys",
+  description: "Integration of Passkeys with Next.js",
 };
 
 interface RootLayoutProps {
-    children: ReactNode
+  children: ReactNode;
 }
 
-export default function RootLayout({children}: Readonly<RootLayoutProps>) {
-    return (
-        <html lang="en">
-        <body
-            className={`min-h-screen font-sans antialiased ${montserrat.variable}`}
-        >
+export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
+  return (
+    <html lang="en">
+      <body
+        className={`min-h-screen font-sans antialiased ${montserrat.variable}`}
+      >
         <div className={"flex min-h-dvh flex-col"}>
-            <main className={`flex-1`}>
-                {children}
-            </main>
+          <main className={`flex-1`}>{children}</main>
         </div>
-        </body>
-        </html>
-    );
+      </body>
+    </html>
+  );
 }

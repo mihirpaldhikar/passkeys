@@ -21,11 +21,11 @@
  */
 
 export default function Home() {
-    return (
-        <section className={"min-h-dvh flex"}>
-            <div className="m-auto">
-                <h1 className={"text-2xl font-bold"}>Passkeys Authentication</h1>
-            </div>
-        </section>
-    );
+  return (
+    <section className={"min-h-dvh flex"}>
+      <div className="m-auto">
+        <h1 className={"text-2xl font-bold"}>Passkeys Authentication</h1>
+      </div>
+    </section>
+  );
 }
