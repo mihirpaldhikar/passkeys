@@ -20,7 +20,10 @@
  * SOFTWARE.
  */
 
-import { get as getPublicCredentials } from "@github/webauthn-json";
+import {
+  create as createPasskeyCredentials,
+  get as getPublicCredentials,
+} from "@github/webauthn-json";
 import axios, { AxiosError, AxiosInstance } from "axios";
 import { StatusCode } from "@enums/index";
 import { Response } from "@dto/index";
@@ -63,7 +66,7 @@ export default class AuthService {
       let axiosError = (await error) as AxiosError;
       if (axiosError.message.includes("INTERNAL:")) {
         return {
-          statusCode: StatusCode.AUTHENTICATION_FAILED,
+          statusCode: StatusCode.FAILURE,
           message: axiosError.message.replaceAll("INTERNAL:", ""),
         } as Response<string>;
       }
@@ -74,7 +77,7 @@ export default class AuthService {
       let errorResponse = JSON.parse(errorResponseString);
 
       return {
-        statusCode: StatusCode.AUTHENTICATION_FAILED,
+        statusCode: StatusCode.FAILURE,
         message: errorResponse["message"],
       } as Response<string>;
     }
@@ -142,6 +145,58 @@ export default class AuthService {
 
       return {
         statusCode: StatusCode.AUTHENTICATION_FAILED,
+        message: errorResponse["message"],
+      } as Response<string>;
+    }
+  }
+
+  public async registerPasskey(identifier: string): Promise<Response<string>> {
+    try {
+      const response = await this.httpClient.post(
+        `${this.ACCOUNT_SERVICE_URL}/passkeys/register`,
+        {
+          identifier: identifier,
+        },
+      );
+
+      if (response.status === 200) {
+        const passkeyChallenge = await response.data;
+        const passkeyCredentials =
+          await createPasskeyCredentials(passkeyChallenge);
+
+        const challengeResponse = await this.httpClient.post(
+          `${this.ACCOUNT_SERVICE_URL}/passkeys/validateRegistrationChallenge`,
+          {
+            identifier: identifier,
+            passkeyCredentials: JSON.stringify(passkeyCredentials),
+          },
+        );
+
+        if (challengeResponse.status === 201) {
+          return {
+            statusCode: StatusCode.PASSKEY_REGISTERED,
+            message: "Passkey Registered.",
+          } as Response<string>;
+        }
+      }
+
+      throw new AxiosError("INTERNAL:Passkey Registration Failed.");
+    } catch (error) {
+      let axiosError = (await error) as AxiosError;
+      if (axiosError.message.includes("INTERNAL:")) {
+        return {
+          statusCode: StatusCode.FAILURE,
+          message: axiosError.message.replaceAll("INTERNAL:", ""),
+        } as Response<string>;
+      }
+
+      let errorResponseString = JSON.stringify(
+        (await axiosError.response?.data) as string,
+      );
+      let errorResponse = JSON.parse(errorResponseString);
+
+      return {
+        statusCode: StatusCode.FAILURE,
         message: errorResponse["message"],
       } as Response<string>;
     }
