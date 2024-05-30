@@ -27,4 +27,5 @@ import com.google.gson.annotations.Expose
 data class AuthenticationCredentials(
     @Expose val identifier: String,
     @Expose val password: String? = null,
+    @Expose val passkeyCredentials: String? = null,
 )

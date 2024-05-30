@@ -59,29 +59,30 @@ fun Routing.accountRoute(
             setAccountCookies(result)
         }
 
-        post("/{identifier}/passkeys/register") {
+        post("/passkeys/register") {
+            val credentials = call.receive<AuthenticationCredentials>()
             val result = passkeyController.startPasskeyRegistration(
-                identifier = call.parameters["identifier"]!!
+                identifier = credentials.identifier
             )
             sendResponse(result)
         }
 
-        post("/{identifier}/passkeys/validateRegistrationChallenge") {
-            val credentials = call.receive<String>()
+        post("/passkeys/validateRegistrationChallenge") {
+            val credentials = call.receive<AuthenticationCredentials>()
             val result =
                 passkeyController.validatePasskeyRegistration(
-                    identifier = call.parameters["identifier"]!!,
-                    credentials = credentials
+                    identifier = credentials.identifier,
+                    credentials = credentials.passkeyCredentials!!
                 )
 
             sendResponse(result)
         }
 
-        post("/{identifier}/passkeys/validatePasskeyChallenge") {
-            val credentials = call.receive<String>()
+        post("/passkeys/validatePasskeyChallenge") {
+            val credentials = call.receive<AuthenticationCredentials>()
             val result = passkeyController.validatePasskeyChallenge(
-                identifier = call.parameters["identifier"]!!,
-                credentials = credentials
+                identifier = credentials.identifier,
+                credentials = credentials.passkeyCredentials!!
             )
 
             setAccountCookies(result)
