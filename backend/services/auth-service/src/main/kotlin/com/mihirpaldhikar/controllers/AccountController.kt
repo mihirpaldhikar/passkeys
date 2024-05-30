@@ -22,6 +22,7 @@
 
 package com.mihirpaldhikar.controllers
 
+import com.mihirpaldhikar.commons.dto.AuthenticationCredentials
 import com.mihirpaldhikar.commons.dto.NewAccount
 import com.mihirpaldhikar.database.mongodb.entities.Account
 import com.mihirpaldhikar.database.mongodb.repository.AccountRepository
@@ -89,6 +90,45 @@ class AccountController(
             statusCode = HttpStatusCode.OK,
             code = ResponseCode.OK,
             data = hashMapOf("authenticationStrategy" to AuthenticationStrategy.PASSKEY)
+        )
+    }
+
+    suspend fun passwordAuthentication(credentials: AuthenticationCredentials): Result {
+        val account = accountRepository.getAccount(credentials.identifier) ?: return Result.Error(
+            statusCode = HttpStatusCode.NotFound,
+            errorCode = ResponseCode.ACCOUNT_NOT_FOUND,
+            message = "Account not found."
+        )
+
+        if (account.fidoCredential.isNotEmpty()) {
+            return Result.Error(
+                statusCode = HttpStatusCode.NotAcceptable,
+                errorCode = ResponseCode.AUTHENTICATION_NOT_PERMITTED,
+                message = "Please authenticate with Passkeys."
+            )
+        }
+
+        if (credentials.password == null) {
+            return Result.Error(
+                statusCode = HttpStatusCode.BadRequest,
+                errorCode = ResponseCode.NULL_PASSWORD,
+                message = "Please provide password."
+            )
+        }
+        val isPasswordVerified = Hash().verify(credentials.password, account.password)
+
+        if (!isPasswordVerified) {
+            return Result.Error(
+                statusCode = HttpStatusCode.Forbidden,
+                errorCode = ResponseCode.INVALID_PASSWORD,
+                message = "Password do not match."
+            )
+        }
+
+        return Result.Success(
+            statusCode = HttpStatusCode.OK,
+            code = ResponseCode.OK,
+            data = hashMapOf("message" to "Authentication successful.")
         )
     }
 }

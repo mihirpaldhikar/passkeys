@@ -50,6 +50,14 @@ fun Routing.accountRoute(
             sendResponse(result)
         }
 
+
+        post("/authenticate") {
+            val credentials = call.receive<AuthenticationCredentials>()
+
+            val result = accountController.passwordAuthentication(credentials)
+            sendResponse(result)
+        }
+
         post("/{identifier}/passkeys/register") {
             val result = passkeyController.startPasskeyRegistration(
                 identifier = call.parameters["identifier"]!!
