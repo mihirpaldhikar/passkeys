@@ -26,6 +26,7 @@ import com.mihirpaldhikar.commons.dto.AuthenticationCredentials
 import com.mihirpaldhikar.commons.dto.NewAccount
 import com.mihirpaldhikar.controllers.AccountController
 import com.mihirpaldhikar.controllers.PasskeyController
+import com.mihirpaldhikar.utils.getSecurityTokens
 import com.mihirpaldhikar.utils.sendResponse
 import com.mihirpaldhikar.utils.setAccountCookies
 import io.ktor.server.application.*
@@ -86,6 +87,18 @@ fun Routing.accountRoute(
             )
 
             setAccountCookies(result)
+        }
+
+        post("/refresh") {
+            val securityToken = getSecurityTokens()
+            val result = accountController.generateNewSecurityTokens(securityToken)
+            setAccountCookies(result)
+        }
+
+        get("/") {
+            val securityToken = getSecurityTokens()
+            val result = accountController.accountDetails(securityToken)
+            sendResponse(result)
         }
     }
 }

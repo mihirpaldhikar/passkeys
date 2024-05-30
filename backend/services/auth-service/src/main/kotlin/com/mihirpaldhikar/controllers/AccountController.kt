@@ -28,6 +28,7 @@ import com.mihirpaldhikar.database.mongodb.entities.Account
 import com.mihirpaldhikar.database.mongodb.repository.AccountRepository
 import com.mihirpaldhikar.enums.AuthenticationStrategy
 import com.mihirpaldhikar.enums.ResponseCode
+import com.mihirpaldhikar.enums.TokenType
 import com.mihirpaldhikar.security.core.Hash
 import com.mihirpaldhikar.security.dao.SecurityToken
 import com.mihirpaldhikar.security.jwt.JsonWebToken
@@ -148,5 +149,35 @@ class AccountController(
             code = ResponseCode.OK,
             data = securityTokens
         )
+    }
+
+    suspend fun accountDetails(securityToken: SecurityToken): Result {
+        if (securityToken.authorizationToken == null) {
+            return Result.Error(
+                statusCode = HttpStatusCode.Unauthorized,
+                errorCode = ResponseCode.INVALID_OR_NULL_TOKEN,
+                message = "Authorization token is invalid or expired."
+            )
+        }
+        val jwtResult =
+            jsonWebToken.verifySecurityToken(securityToken.authorizationToken, TokenType.AUTHORIZATION_TOKEN)
+        if (jwtResult is Result.Error) {
+            return jwtResult
+        }
+        val account =
+            accountRepository.getAccount(jwtResult.responseData.toString().replace("\"", "")) ?: return Result.Error(
+                statusCode = HttpStatusCode.NotFound,
+                errorCode = ResponseCode.ACCOUNT_NOT_FOUND,
+                message = "Account not found."
+            )
+        return Result.Success(
+            statusCode = HttpStatusCode.OK,
+            code = ResponseCode.OK,
+            data = account
+        )
+    }
+
+    fun generateNewSecurityTokens(securityToken: SecurityToken): Result {
+        return jsonWebToken.generateSecurityTokenFromRefreshToken(securityToken)
     }
 }
