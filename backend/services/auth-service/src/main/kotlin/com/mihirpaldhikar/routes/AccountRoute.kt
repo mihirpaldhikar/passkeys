@@ -38,7 +38,7 @@ fun Routing.accountRoute(
 ) {
     route("/accounts") {
 
-        get("/authenticationStrategy") {
+        post("/authenticationStrategy") {
             val credentials = call.receive<AuthenticationCredentials>()
 
             val result = accountController.getAuthenticationStrategy(credentials.identifier)
