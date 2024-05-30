@@ -41,6 +41,45 @@ export default class AuthService {
     });
   }
 
+  public async getAuthenticationStrategy(
+    identifier: string,
+  ): Promise<Response<string>> {
+    try {
+      const response = await this.httpClient.post(
+        `${this.ACCOUNT_SERVICE_URL}/authenticationStrategy`,
+        {
+          identifier: identifier,
+        },
+      );
+
+      if (response.status === 200) {
+        return {
+          statusCode: StatusCode.SUCCESS,
+          payload: response.data["authenticationStrategy"],
+        } as Response<string>;
+      }
+      throw new AxiosError("INTERNAL:Request Failed.");
+    } catch (error) {
+      let axiosError = (await error) as AxiosError;
+      if (axiosError.message.includes("INTERNAL:")) {
+        return {
+          statusCode: StatusCode.AUTHENTICATION_FAILED,
+          message: axiosError.message.replaceAll("INTERNAL:", ""),
+        } as Response<string>;
+      }
+
+      let errorResponseString = JSON.stringify(
+        (await axiosError.response?.data) as string,
+      );
+      let errorResponse = JSON.parse(errorResponseString);
+
+      return {
+        statusCode: StatusCode.AUTHENTICATION_FAILED,
+        message: errorResponse["message"],
+      } as Response<string>;
+    }
+  }
+
   public async authenticate(
     authenticationStrategy: "PASSWORD" | "PASSKEY",
     identifier: string,
