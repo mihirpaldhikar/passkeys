@@ -20,32 +20,12 @@
  * SOFTWARE.
  */
 
-package com.mihirpaldhikar.di
+package com.mihirpaldhikar.security.dao
 
-import com.mihirpaldhikar.Environment
-import com.mihirpaldhikar.database.mongodb.repository.AccountRepository
-import com.mihirpaldhikar.security.jwt.JsonWebToken
-import com.mihirpaldhikar.security.passkey.PasskeyRelyingParty
-import com.yubico.webauthn.RelyingParty
-import org.koin.dsl.module
+import com.google.gson.annotations.Expose
 
-object CoreModule {
-    val init = module {
-        single<Environment> {
-            Environment()
-        }
-
-        single<RelyingParty> {
-            PasskeyRelyingParty(
-                accountRepository = get<AccountRepository>(),
-                developmentMode = get<Environment>().developmentMode
-            ).getRelyingParty()
-        }
-
-        single<JsonWebToken> {
-            JsonWebToken(
-                jwtMetadata = get<Environment>().jwtMetadata
-            )
-        }
-    }
-}
+data class SecurityToken(
+    @Expose val message: String? = null,
+    @Expose val authorizationToken: String?,
+    @Expose val refreshToken: String?,
+)

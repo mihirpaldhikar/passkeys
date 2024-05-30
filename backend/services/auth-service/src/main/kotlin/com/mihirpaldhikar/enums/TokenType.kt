@@ -20,32 +20,10 @@
  * SOFTWARE.
  */
 
-package com.mihirpaldhikar.di
+package com.mihirpaldhikar.enums
 
-import com.mihirpaldhikar.Environment
-import com.mihirpaldhikar.database.mongodb.repository.AccountRepository
-import com.mihirpaldhikar.security.jwt.JsonWebToken
-import com.mihirpaldhikar.security.passkey.PasskeyRelyingParty
-import com.yubico.webauthn.RelyingParty
-import org.koin.dsl.module
-
-object CoreModule {
-    val init = module {
-        single<Environment> {
-            Environment()
-        }
-
-        single<RelyingParty> {
-            PasskeyRelyingParty(
-                accountRepository = get<AccountRepository>(),
-                developmentMode = get<Environment>().developmentMode
-            ).getRelyingParty()
-        }
-
-        single<JsonWebToken> {
-            JsonWebToken(
-                jwtMetadata = get<Environment>().jwtMetadata
-            )
-        }
-    }
+enum class TokenType {
+    AUTHORIZATION_TOKEN,
+    REFRESH_TOKEN,
+    NULL_TOKEN
 }

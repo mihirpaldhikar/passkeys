@@ -20,32 +20,17 @@
  * SOFTWARE.
  */
 
-package com.mihirpaldhikar.di
+package com.mihirpaldhikar.security.dao
 
-import com.mihirpaldhikar.Environment
-import com.mihirpaldhikar.database.mongodb.repository.AccountRepository
-import com.mihirpaldhikar.security.jwt.JsonWebToken
-import com.mihirpaldhikar.security.passkey.PasskeyRelyingParty
-import com.yubico.webauthn.RelyingParty
-import org.koin.dsl.module
+import com.auth0.jwk.JwkProvider
 
-object CoreModule {
-    val init = module {
-        single<Environment> {
-            Environment()
-        }
-
-        single<RelyingParty> {
-            PasskeyRelyingParty(
-                accountRepository = get<AccountRepository>(),
-                developmentMode = get<Environment>().developmentMode
-            ).getRelyingParty()
-        }
-
-        single<JsonWebToken> {
-            JsonWebToken(
-                jwtMetadata = get<Environment>().jwtMetadata
-            )
-        }
-    }
-}
+data class JWTMetadata(
+    val provider: JwkProvider,
+    val authorizationTokenPrivateKey: String,
+    val refreshTokenPrivateKey: String,
+    val audience: String,
+    val issuer: String,
+    val authorizationTokenKeyId: String,
+    val refreshTokenKeyId: String,
+    val realm: String,
+)
