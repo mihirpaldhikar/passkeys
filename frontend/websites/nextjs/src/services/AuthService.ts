@@ -64,8 +64,11 @@ export default class AuthService {
         const passkeyCredentials = await getPublicCredentials(passkeyChallenge);
 
         const challengeResponse = await this.httpClient.post(
-          `${this.ACCOUNT_SERVICE_URL}/${identifier}/passkeys/validatePasskeyChallenge`,
-          JSON.stringify(passkeyCredentials),
+          `${this.ACCOUNT_SERVICE_URL}/passkeys/validatePasskeyChallenge`,
+          {
+            identifier: identifier,
+            passkeyCredentials: JSON.stringify(passkeyCredentials),
+          },
         );
 
         if (challengeResponse.status === 200) {
