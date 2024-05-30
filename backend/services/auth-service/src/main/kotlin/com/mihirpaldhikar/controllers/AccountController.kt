@@ -29,12 +29,15 @@ import com.mihirpaldhikar.database.mongodb.repository.AccountRepository
 import com.mihirpaldhikar.enums.AuthenticationStrategy
 import com.mihirpaldhikar.enums.ResponseCode
 import com.mihirpaldhikar.security.core.Hash
+import com.mihirpaldhikar.security.dao.SecurityToken
+import com.mihirpaldhikar.security.jwt.JsonWebToken
 import com.mihirpaldhikar.utils.Result
 import io.ktor.http.*
 import org.bson.types.ObjectId
 
 class AccountController(
-    private val accountRepository: AccountRepository
+    private val accountRepository: AccountRepository,
+    private val jsonWebToken: JsonWebToken
 ) {
     suspend fun createAccount(newAccount: NewAccount): Result {
         if (accountRepository.getAccount(newAccount.username) != null || accountRepository.getAccount(newAccount.email) != null) {
@@ -63,10 +66,16 @@ class AccountController(
             )
         }
 
+        val securityTokens = SecurityToken(
+            message = "Account Created.",
+            authorizationToken = jsonWebToken.generateAuthorizationToken(account.uuid.toHexString(), "null"),
+            refreshToken = jsonWebToken.generateRefreshToken(account.uuid.toHexString(), "null"),
+        )
+
         return Result.Success(
             statusCode = HttpStatusCode.Created,
             code = ResponseCode.ACCOUNT_CREATED,
-            data = hashMapOf("message" to "Account created.")
+            data = securityTokens
         )
     }
 
@@ -125,10 +134,16 @@ class AccountController(
             )
         }
 
+        val securityTokens = SecurityToken(
+            message = "Authenticated Successfully.",
+            authorizationToken = jsonWebToken.generateAuthorizationToken(account.uuid.toHexString(), "null"),
+            refreshToken = jsonWebToken.generateRefreshToken(account.uuid.toHexString(), "null"),
+        )
+
         return Result.Success(
             statusCode = HttpStatusCode.OK,
             code = ResponseCode.OK,
-            data = hashMapOf("message" to "Authentication successful.")
+            data = securityTokens
         )
     }
 }

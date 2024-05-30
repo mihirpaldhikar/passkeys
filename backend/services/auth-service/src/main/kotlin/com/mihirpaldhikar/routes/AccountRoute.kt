@@ -27,6 +27,7 @@ import com.mihirpaldhikar.commons.dto.NewAccount
 import com.mihirpaldhikar.controllers.AccountController
 import com.mihirpaldhikar.controllers.PasskeyController
 import com.mihirpaldhikar.utils.sendResponse
+import com.mihirpaldhikar.utils.setAccountCookies
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
@@ -47,7 +48,7 @@ fun Routing.accountRoute(
         post("/new") {
             val newAccount = call.receive<NewAccount>()
             val result = accountController.createAccount(newAccount)
-            sendResponse(result)
+            setAccountCookies(result)
         }
 
 
@@ -55,7 +56,7 @@ fun Routing.accountRoute(
             val credentials = call.receive<AuthenticationCredentials>()
 
             val result = accountController.passwordAuthentication(credentials)
-            sendResponse(result)
+            setAccountCookies(result)
         }
 
         post("/{identifier}/passkeys/register") {
@@ -91,7 +92,7 @@ fun Routing.accountRoute(
                 credentials = credentials
             )
 
-            sendResponse(result)
+            setAccountCookies(result)
         }
     }
 }

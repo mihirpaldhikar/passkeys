@@ -22,10 +22,23 @@
 
 package com.mihirpaldhikar.utils
 
+import com.mihirpaldhikar.Environment
+import com.mihirpaldhikar.enums.ResponseCode
+import com.mihirpaldhikar.security.dao.SecurityToken
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
+import io.ktor.util.date.*
 import io.ktor.util.pipeline.*
+import org.koin.java.KoinJavaComponent
+
+
+object CookieName {
+    const val AUTHORIZATION_TOKEN_COOKIE = "__at__"
+    const val REFRESH_TOKEN_COOKIE = "__rt__"
+}
+
+val environment: Environment by KoinJavaComponent.inject(Environment::class.java)
 
 
 suspend fun PipelineContext<Unit, ApplicationCall>.sendResponse(
@@ -43,3 +56,61 @@ suspend fun PipelineContext<Unit, ApplicationCall>.sendResponse(
         },
     )
 }
+
+fun PipelineContext<Unit, ApplicationCall>.setCookie(
+    name: String,
+    value: String,
+    expiresAt: Long,
+    httpOnly: Boolean = true,
+) {
+    call.response.cookies.append(
+        Cookie(
+            name = name,
+            value = value,
+            expires = GMTDate(System.currentTimeMillis() + expiresAt),
+            httpOnly = httpOnly,
+            domain = if (environment.developmentMode) "localhost" else ".mihirpaldhikar.com",
+            path = "/",
+            secure = !environment.developmentMode,
+            extensions = hashMapOf("SameSite" to "lax")
+        )
+    )
+}
+
+suspend fun PipelineContext<Unit, ApplicationCall>.setAccountCookies(result: Result) {
+    if (result is Result.Success &&
+        result.responseData is SecurityToken &&
+        result.responseData.refreshToken != null &&
+        result.responseData.authorizationToken != null
+    ) {
+        setCookie(
+            name = CookieName.AUTHORIZATION_TOKEN_COOKIE,
+            value = result.responseData.authorizationToken,
+            expiresAt = 3600000
+        )
+        setCookie(
+            name = CookieName.REFRESH_TOKEN_COOKIE,
+            value = result.responseData.refreshToken,
+            expiresAt = 2629800000
+        )
+        if (result.responseData.message != null) {
+            return sendResponse(
+                Result.Success(
+                    data = mapOf("message" to result.responseData.message),
+                )
+            )
+        }
+    }
+    return sendResponse(result)
+}
+
+fun PipelineContext<Unit, ApplicationCall>.getSecurityTokens(): SecurityToken {
+    val authorizationToken = call.request.cookies[CookieName.AUTHORIZATION_TOKEN_COOKIE]
+    val refreshToken = call.request.cookies[CookieName.REFRESH_TOKEN_COOKIE]
+
+    return SecurityToken(
+        authorizationToken = authorizationToken,
+        refreshToken = refreshToken
+    )
+}
+

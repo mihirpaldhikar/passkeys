@@ -27,6 +27,8 @@ import com.mihirpaldhikar.database.mongodb.entities.Account
 import com.mihirpaldhikar.database.mongodb.repository.AccountRepository
 import com.mihirpaldhikar.enums.ResponseCode
 import com.mihirpaldhikar.security.dao.FidoCredential
+import com.mihirpaldhikar.security.dao.SecurityToken
+import com.mihirpaldhikar.security.jwt.JsonWebToken
 import com.mihirpaldhikar.utils.PasskeyUtils
 import com.mihirpaldhikar.utils.Result
 import com.yubico.webauthn.*
@@ -37,7 +39,8 @@ import java.util.concurrent.TimeUnit
 
 class PasskeyController(
     private val rp: RelyingParty,
-    private val accountRepository: AccountRepository
+    private val accountRepository: AccountRepository,
+    private val jsonWebToken: JsonWebToken
 ) {
     private val pkcCache = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
         .build<String, PublicKeyCredentialCreationOptions>()
@@ -114,7 +117,14 @@ class PasskeyController(
         )
     }
 
-    fun validatePasskeyChallenge(identifier: String, credentials: String): Result {
+    suspend fun validatePasskeyChallenge(identifier: String, credentials: String): Result {
+
+        val account = accountRepository.getAccount(identifier) ?: return Result.Error(
+            statusCode = HttpStatusCode.NotFound,
+            errorCode = ResponseCode.ACCOUNT_NOT_FOUND,
+            message = "Account not found."
+        )
+
         val pkc =
             PublicKeyCredential.parseAssertionResponseJson(credentials)
         try {
@@ -133,10 +143,15 @@ class PasskeyController(
                 )
             }
 
+            val securityTokens = SecurityToken(
+                message = "Authenticated Successfully.",
+                authorizationToken = jsonWebToken.generateAuthorizationToken(account.uuid.toHexString(), "null"),
+                refreshToken = jsonWebToken.generateRefreshToken(account.uuid.toHexString(), "null"),
+            )
             return Result.Success(
                 statusCode = HttpStatusCode.OK,
                 code = ResponseCode.OK,
-                data = hashMapOf("message" to "Authenticated Successfully.")
+                data = securityTokens
             )
         } catch (error: AssertionFailedException) {
             return Result.Error(

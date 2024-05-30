@@ -25,6 +25,7 @@ package com.mihirpaldhikar.di
 import com.mihirpaldhikar.controllers.AccountController
 import com.mihirpaldhikar.controllers.PasskeyController
 import com.mihirpaldhikar.database.mongodb.repository.AccountRepository
+import com.mihirpaldhikar.security.jwt.JsonWebToken
 import com.yubico.webauthn.RelyingParty
 import org.koin.dsl.module
 
@@ -32,14 +33,16 @@ object ControllerModule {
     val init = module {
         single<AccountController> {
             AccountController(
-                accountRepository = get<AccountRepository>()
+                accountRepository = get<AccountRepository>(),
+                jsonWebToken = get<JsonWebToken>()
             )
         }
 
         single<PasskeyController> {
             PasskeyController(
                 accountRepository = get<AccountRepository>(),
-                rp = get<RelyingParty>()
+                rp = get<RelyingParty>(),
+                jsonWebToken = get<JsonWebToken>()
             )
         }
     }
