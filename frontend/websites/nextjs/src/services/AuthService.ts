@@ -44,6 +44,82 @@ export default class AuthService {
     });
   }
 
+  public async createAccount(
+    authenticationStrategy: "PASSWORD" | "PASSKEY",
+    displayName: string,
+    username: string,
+    email: string,
+    password?: string,
+  ): Promise<Response<string>> {
+    try {
+      const response = await this.httpClient.post(
+        `${this.ACCOUNT_SERVICE_URL}/new`,
+        password === undefined && authenticationStrategy === "PASSKEY"
+          ? {
+              username: username,
+              displayName: displayName,
+              email: email,
+              authenticationStrategy: authenticationStrategy,
+            }
+          : {
+              username: username,
+              displayName: displayName,
+              email: email,
+              password: password,
+              authenticationStrategy: authenticationStrategy,
+            },
+      );
+
+      if (response.status === 200) {
+        if (authenticationStrategy === "PASSKEY") {
+          const passkeyChallenge = await response.data;
+
+          const passkeyCredentials =
+            await createPasskeyCredentials(passkeyChallenge);
+
+          const challengeResponse = await this.httpClient.post(
+            `${this.ACCOUNT_SERVICE_URL}/passkeys/validateRegistrationChallenge`,
+            {
+              identifier: username,
+              passkeyCredentials: JSON.stringify(passkeyCredentials),
+            },
+          );
+
+          if (challengeResponse.status === 201) {
+            return {
+              statusCode: StatusCode.PASSKEY_REGISTERED,
+              message: "Passkey Registered.",
+            } as Response<string>;
+          }
+        }
+        return {
+          statusCode: StatusCode.AUTHENTICATION_SUCCESSFUL,
+          message: "Account Created Successfully.",
+        } as Response<string>;
+      }
+
+      throw new AxiosError("INTERNAL:Account Creation Failed.");
+    } catch (error) {
+      let axiosError = (await error) as AxiosError;
+      if (axiosError.message.includes("INTERNAL:")) {
+        return {
+          statusCode: StatusCode.AUTHENTICATION_FAILED,
+          message: axiosError.message.replaceAll("INTERNAL:", ""),
+        } as Response<string>;
+      }
+
+      let errorResponseString = JSON.stringify(
+        (await axiosError.response?.data) as string,
+      );
+      let errorResponse = JSON.parse(errorResponseString);
+
+      return {
+        statusCode: StatusCode.AUTHENTICATION_FAILED,
+        message: errorResponse["message"],
+      } as Response<string>;
+    }
+  }
+
   public async getAuthenticationStrategy(
     identifier: string,
   ): Promise<Response<string>> {
