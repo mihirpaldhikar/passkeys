@@ -18,7 +18,42 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@public/*": [
+        "./public/*"
+      ],
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@type/*": [
+        "./src/type/*"
+      ],
+      "@configs/*": [
+        "./src/configs/*"
+      ],
+      "@interfaces/*": [
+        "./src/interfaces/*"
+      ],
+      "@services/*": [
+        "./src/services/*"
+      ],
+      "@repositories/*": [
+        "./src/repositories/*"
+      ],
+      "@utils/*": [
+        "./src/utils/*"
+      ],
+      "@dto/*": [
+        "./src/dto/*"
+      ],
+      "@enums/*": [
+        "./src/enums/*"
+      ],
+      "@lib/*": [
+        "./src/lib/*"
+      ],
+      "@hooks/*": [
+        "./src/hooks/*"
+      ]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
