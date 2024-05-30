@@ -54,7 +54,7 @@ class AccountController(
             username = newAccount.username,
             email = newAccount.email,
             displayName = newAccount.displayName,
-            password = Hash().generateSaltedHash(newAccount.password),
+            password = if (newAccount.password == null) null else Hash().generateSaltedHash(newAccount.password),
             fidoCredential = mutableSetOf()
         )
 
@@ -65,6 +65,11 @@ class AccountController(
                 errorCode = ResponseCode.ACCOUNT_CREATION_ERROR,
                 message = "Account creation failed."
             )
+        }
+
+        if (newAccount.authenticationStrategy === AuthenticationStrategy.PASSKEY) {
+            val result = passkeyController.startPasskeyRegistration(account.username)
+            return result;
         }
 
         val securityTokens = SecurityToken(
@@ -110,12 +115,12 @@ class AccountController(
             message = "Account not found."
         )
 
-        if (account.fidoCredential.isNotEmpty()) {
+        if (account.fidoCredential.isNotEmpty() && account.password == null) {
             val result = passkeyController.startPasskeyChallenge(credentials.identifier)
             return result
         }
 
-        if (credentials.password == null) {
+        if (credentials.password == null || account.password == null) {
             return Result.Error(
                 statusCode = HttpStatusCode.BadRequest,
                 errorCode = ResponseCode.NULL_PASSWORD,

@@ -23,10 +23,13 @@
 package com.mihirpaldhikar.commons.dto
 
 import com.google.gson.annotations.Expose
+import com.mihirpaldhikar.enums.AuthenticationStrategy
+
 
 data class NewAccount(
     @Expose val username: String,
     @Expose val displayName: String,
     @Expose val email: String,
-    @Expose val password: String,
+    @Expose val password: String? = null,
+    @Expose val authenticationStrategy: AuthenticationStrategy
 )

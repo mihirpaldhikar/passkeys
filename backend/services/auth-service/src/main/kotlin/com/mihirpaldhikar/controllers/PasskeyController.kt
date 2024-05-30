@@ -59,6 +59,7 @@ class PasskeyController(
         pkcCache.put(identifier, pkcOptions)
 
         return Result.Success(
+            code = ResponseCode.PASSKEY_CHALLENGE,
             data = pkcOptions.toCredentialsCreateJson(),
             encodeStringAsJSON = true
         )
