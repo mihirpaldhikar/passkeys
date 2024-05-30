@@ -27,6 +27,7 @@ import com.mihirpaldhikar.commons.dto.NewAccount
 import com.mihirpaldhikar.controllers.AccountController
 import com.mihirpaldhikar.controllers.PasskeyController
 import com.mihirpaldhikar.utils.getSecurityTokens
+import com.mihirpaldhikar.utils.removeSecurityTokens
 import com.mihirpaldhikar.utils.sendResponse
 import com.mihirpaldhikar.utils.setAccountCookies
 import io.ktor.server.application.*
@@ -99,6 +100,10 @@ fun Routing.accountRoute(
             val securityToken = getSecurityTokens()
             val result = accountController.accountDetails(securityToken)
             sendResponse(result)
+        }
+
+        post("/signout") {
+            removeSecurityTokens()
         }
     }
 }

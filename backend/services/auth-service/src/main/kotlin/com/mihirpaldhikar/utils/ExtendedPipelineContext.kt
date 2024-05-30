@@ -114,4 +114,23 @@ fun PipelineContext<Unit, ApplicationCall>.getSecurityTokens(): SecurityToken {
     )
 }
 
+suspend fun PipelineContext<Unit, ApplicationCall>.removeSecurityTokens() {
+    setCookie(
+        name = CookieName.AUTHORIZATION_TOKEN_COOKIE,
+        value = "null",
+        expiresAt = 0
+    )
+    setCookie(
+        name = CookieName.REFRESH_TOKEN_COOKIE,
+        value = "null",
+        expiresAt = 0
+    )
+    sendResponse(
+        Result.Success(
+            statusCode = HttpStatusCode.OK,
+            code = ResponseCode.OK,
+            data = hashMapOf("message" to "Logged out.")
+        )
+    )
+}
 
