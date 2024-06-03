@@ -24,6 +24,7 @@ package com.mihirpaldhikar.security.passkey
 
 import com.mihirpaldhikar.database.mongodb.repository.AccountRepository
 import com.yubico.webauthn.RelyingParty
+import com.yubico.webauthn.data.PublicKeyCredentialParameters
 import com.yubico.webauthn.data.RelyingPartyIdentity
 
 class PasskeyRelyingParty(
@@ -49,6 +50,7 @@ class PasskeyRelyingParty(
             )
             .allowOriginPort(true)
             .allowOriginSubdomain(true)
+            .preferredPubkeyParams(mutableListOf(PublicKeyCredentialParameters.RS512, PublicKeyCredentialParameters.ES512))
             .build()
         return rp;
     }
