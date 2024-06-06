@@ -50,7 +50,6 @@ class PasskeyRelyingParty(
             )
             .allowOriginPort(true)
             .allowOriginSubdomain(true)
-            .preferredPubkeyParams(mutableListOf(PublicKeyCredentialParameters.RS512, PublicKeyCredentialParameters.ES512))
             .build()
         return rp;
     }
