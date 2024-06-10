@@ -21,7 +21,7 @@
  */
 
 "use client";
-import { JSX, useState } from "react";
+import { Fragment, JSX, useState } from "react";
 import { AuthService } from "@services/index";
 import { StatusCode } from "@enums/StatusCode";
 import { useRouter } from "next/navigation";
@@ -108,22 +108,20 @@ export default function SignInForm(): JSX.Element {
         }}
       />
       <button
-        disabled={submitting}
-        type={"submit"}
-        className={`${authenticationStrategy !== "PASSKEY" ? "hidden" : "flex"} w-full items-center justify-center space-x-3 rounded-md bg-green-600 px-3 py-2 font-bold text-white disabled:bg-gray-300 disabled:text-gray-500`}
-      >
-        <PasskeyIcon color={submitting ? "#6b7280" : "#ffffff"} />{" "}
-        <h2>Continue With Passkey</h2>
-      </button>
-      <button
         disabled={submitting || identifier.length === 0}
         type={"submit"}
-        hidden={authenticationStrategy === "PASSKEY"}
         className={
           "w-full rounded-md bg-blue-600 px-3 py-2 font-semibold text-white disabled:bg-gray-300 disabled:text-gray-500"
         }
       >
-        Continue
+        {authenticationStrategy === "PASSKEY" ? (
+          <Fragment>
+            <PasskeyIcon color={submitting ? "#6b7280" : "#ffffff"} />{" "}
+            <h2>Continue With Passkey</h2>
+          </Fragment>
+        ) : (
+          <h2>Continue</h2>
+        )}
       </button>
     </form>
   );
